@@ -35,6 +35,9 @@ func (h Hooks) AfterValidatorRemoved(ctx sdk.Context, _ sdk.ConsAddress, valAddr
 		// split into integral & remainder
 		coins, remainder := commission.TruncateDecimal()
 
+		// TODO(roman) - how should we capture the remainder here?
+		// h.hooks.TruncateValidatorCommission(ctx, valAddr, remainder)
+
 		// remainder to community pool
 		feePool := h.k.GetFeePool(ctx)
 		feePool.CommunityPool = feePool.CommunityPool.Add(remainder)

@@ -71,7 +71,7 @@ type GaiaApp struct {
 }
 
 // NewGaiaApp returns a reference to an initialized GaiaApp.
-func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, baseAppOptions ...func(*bam.BaseApp)) *GaiaApp {
+func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, distHooks sdk.DistributionHooks, baseAppOptions ...func(*bam.BaseApp)) *GaiaApp {
 	cdc := MakeCodec()
 
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
@@ -144,6 +144,8 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		gov.DefaultCodespace,
 	)
 
+	app.distrKeeper.SetHooks(distHooks)
+
 	// register the staking hooks
 	// NOTE: The stakingKeeper above is passed by reference, so that it can be
 	// modified like below:
@@ -202,6 +204,14 @@ func MakeCodec() *codec.Codec {
 	return cdc
 }
 
+func (app *GaiaApp) GetStakingKeeper() staking.Keeper {
+	return app.stakingKeeper
+}
+
+func (app *GaiaApp) LoadLatest() error {
+	return app.LoadLatestVersion(app.keyMain)
+}
+
 // application updates every end block
 func (app *GaiaApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	// mint new tokens for the previous block
@@ -229,7 +239,8 @@ func (app *GaiaApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.R
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	app.assertRuntimeInvariants()
+	// TODO(roman): use option when porting to v0.34.x
+	// app.assertRuntimeInvariants()
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,

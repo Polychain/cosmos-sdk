@@ -77,12 +77,10 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, sumPrecommitPower, totalPower in
 	// allocate community funding
 	feePool.CommunityPool = feePool.CommunityPool.Add(remaining)
 	k.SetFeePool(ctx, feePool)
-
 }
 
 // allocate tokens to a particular validator, splitting according to commission
-func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val sdk.Validator, tokens sdk.DecCoins) {
-
+func (k *Keeper) AllocateTokensToValidator(ctx sdk.Context, val sdk.Validator, tokens sdk.DecCoins) {
 	// split tokens between validator and delegators according to commission
 	commission := tokens.MulDec(val.GetCommission())
 	shared := tokens.Sub(commission)
@@ -101,4 +99,6 @@ func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val sdk.Validator, to
 	outstanding := k.GetValidatorOutstandingRewards(ctx, val.GetOperator())
 	outstanding = outstanding.Add(tokens)
 	k.SetValidatorOutstandingRewards(ctx, val.GetOperator(), outstanding)
+
+	k.hooks.AfterAllocateTokensToValidator(ctx, val, commission, shared)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 )
 
-// keeper of the staking store
+// keeper of the distribution store
 type Keeper struct {
 	storeKey            sdk.StoreKey
 	cdc                 *codec.Codec
@@ -15,6 +15,7 @@ type Keeper struct {
 	bankKeeper          types.BankKeeper
 	stakingKeeper       types.StakingKeeper
 	feeCollectionKeeper types.FeeCollectionKeeper
+	hooks               sdk.DistributionHooks
 
 	// codespace
 	codespace sdk.CodespaceType
@@ -33,6 +34,14 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace params.Subspace, c
 		codespace:           codespace,
 	}
 	return keeper
+}
+
+// Set the distribution hooks
+func (k *Keeper) SetHooks(hooks sdk.DistributionHooks) {
+	if k.hooks != nil {
+		panic("cannot set distribution hooks twice")
+	}
+	k.hooks = hooks
 }
 
 // set withdraw address

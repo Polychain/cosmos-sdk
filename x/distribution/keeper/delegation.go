@@ -102,7 +102,7 @@ func (k Keeper) calculateDelegationRewards(ctx sdk.Context, val sdk.Validator, d
 	return rewards
 }
 
-func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val sdk.Validator, del sdk.Delegation) sdk.Error {
+func (k *Keeper) withdrawDelegationRewards(ctx sdk.Context, val sdk.Validator, del sdk.Delegation) sdk.Error {
 
 	// check existence of delegator starting info
 	if !k.HasDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr()) {
@@ -131,6 +131,8 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val sdk.Validator, de
 
 	// truncate coins, return remainder to community pool
 	coins, remainder := rewards.TruncateDecimal()
+
+	k.hooks.TruncateDelegatorRewards(ctx, val, del, remainder)
 
 	k.SetValidatorOutstandingRewards(ctx, del.GetValidatorAddr(), outstanding.Sub(rewards))
 	feePool := k.GetFeePool(ctx)

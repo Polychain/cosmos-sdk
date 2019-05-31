@@ -73,7 +73,7 @@ type GaiaApp struct {
 
 // NewGaiaApp returns a reference to an initialized GaiaApp.
 func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint,
+	invCheckPeriod uint, distHooks sdk.DistributionHooks,
 	baseAppOptions ...func(*bam.BaseApp)) *GaiaApp {
 
 	cdc := MakeCodec()
@@ -155,6 +155,8 @@ func NewGaiaApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest b
 		app.feeCollectionKeeper,
 	)
 
+	app.distrKeeper.SetHooks(distHooks)
+
 	// register the staking hooks
 	// NOTE: The stakingKeeper above is passed by reference, so that it can be
 	// modified like below:
@@ -217,6 +219,14 @@ func MakeCodec() *codec.Codec {
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
 	return cdc
+}
+
+func (app *GaiaApp) GetStakingKeeper() staking.Keeper {
+	return app.stakingKeeper
+}
+
+func (app *GaiaApp) LoadLatest() error {
+	return app.LoadLatestVersion(app.keyMain)
 }
 
 // application updates every end block

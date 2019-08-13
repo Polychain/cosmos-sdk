@@ -144,6 +144,8 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val sdk.Validator, de
 	// truncate coins, return remainder to community pool
 	coins, remainder := rewards.TruncateDecimal()
 
+	k.hooks.TruncateDelegatorRewards(ctx, val, del, remainder)
+
 	k.SetValidatorOutstandingRewards(ctx, del.GetValidatorAddr(), outstanding.Sub(rewards))
 	feePool := k.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(remainder)

@@ -24,6 +24,8 @@ type Keeper struct {
 	blockedAddrs map[string]bool
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
+
+	hooks types.DistributionHooks
 }
 
 // NewKeeper creates a new distribution Keeper instance
@@ -53,6 +55,14 @@ func NewKeeper(
 		feeCollectorName: feeCollectorName,
 		blockedAddrs:     blockedAddrs,
 	}
+}
+
+// SetHooks sets the distribution hooks.
+func (k *Keeper) SetHooks(hooks types.DistributionHooks) {
+	if k.hooks != nil {
+		panic("cannot set distribution hooks twice")
+	}
+	k.hooks = hooks
 }
 
 // Logger returns a module-specific logger.

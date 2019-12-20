@@ -18,6 +18,7 @@ type Keeper struct {
 	paramSpace    params.Subspace
 	stakingKeeper types.StakingKeeper
 	supplyKeeper  types.SupplyKeeper
+	hooks         types.DistributionHooks
 
 	codespace sdk.CodespaceType
 
@@ -46,6 +47,14 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramSpace params.Subspace,
 		feeCollectorName: feeCollectorName,
 		blacklistedAddrs: blacklistedAddrs,
 	}
+}
+
+// SetHooks sets the distribution hooks.
+func (k *Keeper) SetHooks(hooks types.DistributionHooks) {
+	if k.hooks != nil {
+		panic("cannot set distribution hooks twice")
+	}
+	k.hooks = hooks
 }
 
 // Logger returns a module-specific logger.

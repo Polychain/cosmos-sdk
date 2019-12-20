@@ -184,5 +184,8 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val exported.Validato
 	// remove delegator starting info
 	k.DeleteDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr())
 
+	// TODO(roman): the remainder is small - maybe we don't care?
+	// k.hooks.TruncateDelegatorRewards(ctx, val, del, remainder)
+
 	return coins, nil
 }

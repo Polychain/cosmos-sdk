@@ -100,7 +100,7 @@ func (k Keeper) AllocateTokens(
 }
 
 // AllocateTokensToValidator allocate tokens to a particular validator, splitting according to commission
-func (k *Keeper) AllocateTokensToValidator(ctx sdk.Context, val exported.ValidatorI, tokens sdk.DecCoins) {
+func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val exported.ValidatorI, tokens sdk.DecCoins) {
 	// split tokens between validator and delegators according to commission
 	commission := tokens.MulDec(val.GetCommission())
 	shared := tokens.Sub(commission)
